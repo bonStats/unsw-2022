@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Twisted SMC or: How I learned to stop worrying</title>
+    <title>Twisted: Improving particle filters by learning modified paths</title>
     <meta charset="utf-8" />
     <meta name="author" content="Joshua J Bon" />
     <script src="libs/header-attrs-2.13/header-attrs.js"></script>
@@ -14,9 +14,10 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Twisted SMC or: How I learned to stop worrying
-## and love Feynman-Kac models
+# Twisted: Improving particle filters by learning modified paths
 ### Joshua J Bon
+### Mathematics Sciences, QUT
+### 22-04-2022
 
 ---
 
@@ -45,38 +46,91 @@ padding: 0.25cm;
 ---
 class: list-space
 
-## 1-step Feynman-Kac
+## Acknowledgements 
 
-.pull-left[
-![](index_files/figure-html/fk-viz-1-1.png)&lt;!-- --&gt;
-`\(M_1(x_0,\cdot) = N(x_0-2,1)\)`
-]
-.pull-right[
-.content-box-purple[
-`$$\eta_0 \overset{G_0}{\longrightarrow} \hat\eta_0 \overset{M_1}{\longrightarrow} \eta_1$$`
-]
-- `\(G_0\)` potential function, weights the **measure**
-- `\(M_1\)` mutation kernel, mutates the **measure**
+Joint work with 
 
-]
+- **Anthony Lee** (Bristol University) 
+- **Christopher Drovandi** (QUT)
+
+
+Institutions and Groups
+
+- **School of Mathematical Sciences, QUT**
+- **ARC Centre of Excellence for Mathematical and Statistical Frontiers**
+- **QUT Centre for Data Science**
+- **Bayesian Research and Applications Group**
 
 ---
 class: list-space
 
-## 1-step particle filter
+## My research area
 
-.pull-left[
-![](index_files/figure-html/fk-viz-2-1.png)&lt;!-- --&gt;
-`\(M_1(x_0,\cdot) = N(x_0-2,1)\)`
-]
+.full-width[.content-box-red[
+**Adaptive methods** for sequential Monte Carlo **tuned with particles**
+]]
+
+--
+
+This work...
+
+.full-width[.content-box-blue[
+Particle filters for dynamic models with **difficult/intractable transition densities**
+]]
+
+---
+
+## Hidden Markov models
+
+.pull-left[.content-box-purple[
+
+- Inference over latent states
+ - Time series
+ - Robotics
+
+- Unbiased estimate of normalising constant
+ - Model selection
+ - Pseudo-marginal methods
+
+]]
+
 .pull-right[
-.content-box-purple[
-`$$\eta_0^N \overset{G_0}{\longrightarrow} \hat\eta_0^N \overset{M_1}{\longrightarrow} \eta_1^N$$`
-]
-- `\(G_0\)` potential function, weights the **particles**
-- `\(M_1\)` mutation kernel, mutates the **particles**
+
+&lt;img src="imgs/hmm_tikz.svg" width="600" style="display: block; margin: auto;" /&gt;
 
 ]
+
+--
+
+`$$\hat{Z}_n = \int_{\mathsf{X}^{n+1}}m_0(x_0)G_0(x_0,y_0)\prod_{p=1}^{n}m_p(x_{p-1},x_{p})G_p(x_p,y_p)\text{d}x_0\cdots\text{d}x_n$$`
+
+- Mutation: `\(m_p\)` is the density for `\(M_p\)`
+- Potential: `\(G_p\)` is the likelihood of `\(y_p\)`
+---
+
+## Particle filters
+
+Initial distribution `\(M_0\)` (or `\(m_0\)`) then for `\(p = 1, 2, \ldots, n\)`
+
+--
+
+.full-width[.content-box-red[
+🌶 **Update**
+- Weight with potential `\(G_{p-1}\)`
+- Resample: Randomly select particles according to weight
+- Survival of the fittest
+]]
+
+--
+
+.full-width[.content-box-purple[
+🌶 **Predict**
+- Mutate samples with `\(M_p\)`
+]]
+
+--
+
+Finally, terminal update step with `\(G_n\)` 
 
 ---
 
@@ -84,23 +138,14 @@ class: list-space
 
 If `\(\mu\)` is a probability distribution (or measure) on measurable space `\((\mathsf{X},\mathcal{X})\)`
 
-.pull-left[.content-box-purple[
+.content-box-purple[
 
 `$$\text{For}~S \in \mathcal{X}, \quad \mu(S) = \int_{S} \mu(\text{d}x)$$`
 
 `$$\text{For}~\varphi:\mathsf{X}\rightarrow \mathbb{R}, \quad \mu(\varphi) = \int_{\mathsf{X}} \varphi(x) \mu(\text{d}x)$$`
+]
 
-]]
-
-.pull-right[.content-box-red[
-
-Or with density (mass) function `\(p_{\mu}(x)\)`
-`$$\mu(\text{d}x) = p_{\mu}(x) \text{d}x, \quad \text{for}~x \in \mathsf{X}$$`
-
-]]
-
-
-&lt;br&gt;
+--
 &lt;br&gt;
 
 - Implicit integrals/measures are defined by `\(\varphi(x) \mu(\text{d}x) \Longleftrightarrow \int_{S} \varphi(x) \mu(\text{d}x)\)`
@@ -111,19 +156,23 @@ Or with density (mass) function `\(p_{\mu}(x)\)`
 
 ## 🌈 Everything is an integral
 
-If `\(K\)` is a Markov kernel (or non-negative kernel) on measure space `\((\mathsf{X},\mathcal{X})\)`
+If `\(\mu\)` is a probability distribution (or measure) on measurable space `\((\mathsf{X},\mathcal{X}) = \color{red}{(\mathbb{R},\mathscr{B}(\mathbb{R}))}\)`
+
+.content-box-purple[
+
+`$$\text{For}~S \in \mathcal{X}, \quad \mu(S) = \int_{S} \color{red}{p_\mu(x)\text{d}x}$$`
+
+`$$\text{For}~\varphi:\mathsf{X}\rightarrow \mathbb{R}, \quad \mu(\varphi) = \int_{\mathsf{X}} \varphi(x) \color{red}{p_\mu(x)\text{d}x}$$`
+]
 
 
-.pull-left[.content-box-purple[
+&lt;br&gt;
+- Implicit integrals/measures are defined by `\(\varphi(x) \mu(\text{d}x) \Longleftrightarrow \int_{S} \varphi(x) \color{red}{p_\mu(x)\text{d}x}\)`
 
-`$$\text{For}~v \in \mathsf{X}, S \in \mathcal{X}, \quad K(v,S) = \int_{S} K(v,\text{d}x)$$`
+- `\(\varphi\)` is assumed to be measurable
 
-`$$\text{For}~v \in \mathsf{X},\varphi:\mathsf{X}\rightarrow \mathbb{R}, \quad$$`
-`$$K(\varphi)(v) = \int_{\mathsf{X}} \varphi(x) K(v,\text{d}x)$$`
-
-]]
-
-.pull-right[.content-box-red[
+---
+.pull-left[.content-box-red[
 
 Or with density (mass) function `\(p_{K}(v,x)\)`
 `$$K(v,\text{d}x)  =p_{K}(v,x) \text{d}x, \quad \text{for}~v,x \in \mathsf{X}$$`
@@ -131,141 +180,101 @@ Or with density (mass) function `\(p_{K}(v,x)\)`
 ]]
 
 
+.pull-right[.content-box-red[
+
+Or with density (mass) function `\(p_{\mu}(x)\)`
+`$$\mu(\text{d}x) = p_{\mu}(x) \text{d}x, \quad \text{for}~x \in \mathsf{X}$$`
+
+]]
+
+---
+
+## 🌈 Everything is an integral
+
+If `\(K\)` is a Markov kernel (or non-negative kernel) on measure space `\((\mathsf{X},\mathcal{X})\)`
+
+
+.content-box-purple[
+
+`$$\text{For}~v \in \mathsf{X}, S \in \mathcal{X}, \quad K(v,S) = \int_{S} K(v,\text{d}x)$$`
+
+`$$\text{For}~v \in \mathsf{X},\varphi:\mathsf{X}\rightarrow \mathbb{R}, \quad K(\varphi)(v) = \int_{\mathsf{X}} \varphi(x) K(v,\text{d}x)$$`
+]
+
+--
 
 - For a fixed `\(v \in \mathsf{X}\)`, `\(K(v,\cdot)\)` is a measure
 - For a fixed (measurable) function `\(\varphi\)`, `\(K(\varphi)(\cdot)\)` is a measurable function
     - allows `\(\mu(K(\varphi))\)` notation
 
-
 ---
 class: inverse, center, middle, hide-logo
 
-# Feynman-Kac models 
+# From Feynman-Kac models to particle filters
 
 ---
+class: list-space
 
-## Discrete-time Feynman-Kac models
+## 1-step Feynman-Kac model
 
-A recipe for sequential Monte Carlo algorithms, with ingredients...
-
---
-
+.pull-left[
+![](index_files/figure-html/fk-viz-1-1.png)&lt;!-- --&gt;
+]
+.pull-right[
 .content-box-purple[
-#### (In)homogeneous Markov chain
-
-`$$\boldsymbol{P}_n(\text{d} x_{0:n}) = M_{0}(\text{d} x_{0})\prod_{t=1}^n M_{t}(x_{t-1}, \text{d} x_{t}) \quad \text{on}~(\mathsf{X}^{n+1},\mathcal{X}^{\otimes n+1})$$`
+`$$\eta_0 \overset{G_0}{\longrightarrow} \hat\eta_0 \overset{M_1}{\longrightarrow} \eta_1$$`
 ]
+- `\(G_0\)` potential, weights initial **distribution**
+ - `\(\hat\gamma_0(\text{d}x) = \eta_0(\text{d}x)G_0(x)\)`
+ - `\(\hat\eta_0(\text{d}x) = \hat\gamma_0(\text{d}x) /Z_1\)`
+- `\(M_1\)` kernel, mutates updated **distribution**
+ - `\(\eta_1(S) = \int_{\mathsf{X}} \eta_0(\text{d}x)M_1(x, S)\)`
 
---
-
-.content-box-red[
-#### Potential functions
-
-`$$G_0(x_0), G_1(x_1), \ldots, G_n(x_n)$$`
 ]
-
---
-
-(But does not specify resampling mechanism)
-
----
-
-## Dynamic model example: Linear Gaussian Markov model
-
-.pull-left[.content-box-purple[
-`$$M_0(\text{d}x_0) = \mathcal{N}(x_0;a_0,\Sigma_0)\text{d}x_0$$`
-
-`$$M_p(x_{p-1}, \text{d}x_p) = \mathcal{N}(x_p;Ax_{p-1},\Sigma_M)\text{d}x_p$$`
-
-`$$G_p(x_p) = \mathcal{N}(y_p;x_p,\Sigma_G)$$`
-]]
-
-.pull-right[.content-box-purple[
-
-- Inference over latent states
-
-- Unbiased estimate of normalising constant
-
-]]
-
---
-
-&lt;img src="imgs/hmm_tikz.svg" width="550" style="display: block; margin: auto;" /&gt;
-
---
-❓ Static models have a fixed number of unknown quantities
 
 ---
 class: list-space
 
-## On the path space
+## 1-step particle filter
 
-A sequence of iterated `\(\color{magenta}{\text{reweight}}\)` and `\(\color{blue}{\text{mutate}}\)` steps...
+.pull-left[
+![](index_files/figure-html/fk-viz-2-1-1.png)&lt;!-- --&gt;
+]
+.pull-right[
+.content-box-purple[
+`$$\eta_0^N \overset{G_0}{\longrightarrow} \hat\eta_0^N \overset{M_1}{\longrightarrow} \eta_1^N$$`
+]
+- `\(G_0\)` potential, weights initial **particles**
+ - Estimate `\(Z_1\)`, self-normalised IS
+- `\(M_1\)` kernel, mutates updated **particles**
 
---
-
-- `\(\gamma_0(\text{d} x_{0}) = M_0(\text{d}x_0)\)`
-
---
-- `\(\boldsymbol{\gamma}_1(\text{d} x_{0:1}) = \gamma_0(\text{d} x_{0})\color{magenta}{G_0(x_0)}\color{blue}{M_1(x_0, \text{d}x_1)}\)` 
-
---
-- `\(\boldsymbol{\gamma}_2(\text{d} x_{0:2}) = \boldsymbol{\gamma}_1(\text{d} x_{0:1})\color{magenta}{G_1(x_1)}\color{blue}{M_2(x_1, \text{d}x_2)}\)`
-
----
-class: list-space
-
-## On the path space
-
-A sequence of iterated `\(\color{magenta}{\text{reweight}}\)` and `\(\color{blue}{\text{mutate}}\)` steps...
-
-
-
-- `\(\boldsymbol{\gamma}_p(\text{d} x_{0:p}) = \boldsymbol{\gamma}_{p-1}(\text{d} x_{0:p-1})\color{magenta}{G_{p-1}(x_{p-1})}\color{blue}{M_p(x_{p-1}, \text{d}x_p)}\)`
-
---
-&lt;br&gt;&lt;br&gt;&lt;br&gt;
-`$$\boldsymbol{\gamma}_n(\text{d} x_{0:n}) = M_0(\text{d}x_0)\prod_{p=1}^{n}\color{magenta}{G_{p-1}(x_{p-1})}\color{blue}{M_{p}(x_{p-1},\text{d}x_p)}$$`
---
-
-Where is `\(G_n\)`?
-
---
-
-`$$\hat{\boldsymbol{\gamma}}_n(\text{d} x_{0:n}) = \boldsymbol{\gamma}_n(\text{d} x_{0:n})\color{magenta}{G_n(x_n)}$$`
-
---
-
-&lt;br&gt;&lt;br&gt;&lt;br&gt;
-Predictive path measure `\(\boldsymbol{\gamma}_n\)`, updated path measure `\(\hat{\boldsymbol{\gamma}}_n\)`
+]
 
 ---
 
-## Marginal measures
+## n-step model
 
-With `\(\gamma_0 = M_0\)` we can define using a recursive formula 
+With `\(\gamma_0 = M_0\)` we can define marginal predictive via recursion 
 
-`$$\begin{aligned}\gamma_{p}(S) &amp;= \int_{\mathsf{X}} \gamma_{p-1}(\text{d}x_{p-1})\color{magenta}{G_{p-1}(x_{p-1})}\color{blue}{M_{p}(x_{p-1},S)}\\
-\hat{\gamma}_{p}(\text{d}x_p) &amp;= \gamma_{p}(\text{d}x_p)\color{magenta}{G_p(x_p)}\end{aligned}$$`
-
---
-
-Normalised?
+`$$\begin{aligned}\gamma_{p}(S) &amp;= \int_{\mathsf{X}} \gamma_{p-1}(\text{d}x_{p-1})\color{red}{G_{p-1}(x_{p-1})}\color{blue}{M_{p}(x_{p-1},S)}\\
+\eta_{p}(S) &amp;= \frac{\gamma_{p}(S)}{Z_p}\end{aligned}$$`
 
 --
 
-`$$\begin{aligned}\eta_{p}(S) &amp;= \gamma_{p}(S)/\gamma_p(1) \\ 
+And updated versions
+
+`$$\begin{aligned}\hat{\gamma}_{p}(\text{d}x_p) &amp;= \gamma_{p}(\text{d}x_p)\color{red}{G_p(x_p)} \\ 
 ~\\
-\hat{\eta}_{p}(S) &amp;= \hat{\gamma}_{p}(S)/\hat{\gamma}_p(1)\end{aligned}$$`
+\hat{\eta}_{p}(S) &amp;= \frac{\hat{\gamma}_{p}(S)}{\hat{Z}_p}\end{aligned}$$`
+
 
 ---
 
 ## Feynman-Kac summary
 
-.pull-left[
 ### Marginal space
 
-`\(x_{p} \in \mathsf{X}\)`
+`\(x_{p} \in \mathsf{X}\)` for `\(p \in \{0,1,\ldots,n\}\)`
 
 |             | Measure             | Distribution        |
 | ----------- | :-----------------: | :-----------------: |
@@ -273,32 +282,21 @@ Normalised?
 | Updated     | `\(\hat{\gamma}_p\)`    | `\(\hat{\eta}_p\)`      |
 | Normalised  | ❌| ✅ |
 
-for `\(p \in \{0,1,\ldots,n\}\)`
 
-]
 
-.pull-right[
-### Path space
-
-`\(x_{0:p} \in \mathsf{X}^{p+1}\)` 
-
-|             | Measure             | Distribution        |
-| ----------- | :-----------------: | :-----------------: |
-| Predictive  | `\(\boldsymbol{\gamma}_p\)`       | `\(\boldsymbol{\eta}_p\)`            |
-| Updated     | `\(\hat{\boldsymbol{\gamma}}_p\)` | `\(\boldsymbol{\hat{\eta}}_p\)`      |
-| Normalised  | ❌          | ✅        |
-
-for `\(p \in \{0,1,\ldots,n\}\)`
-]
 
 ---
 class: list-space
 
 ## Feynman-Kac summary
 
-- The Feynman-Kac model defines the sequence of distributions and how we traverse through them
-    - `\(\gamma_{p-1}\)` reweight `\(\color{magenta}{G_{p-1}}\)`, mutate `\(\color{blue}{M_p}\)` to `\(\gamma_p\)`
+- Feynman-Kac model defines
+ - Path measure (and distribution)
+ - Sequence of marginal distributions 
+ - How we traverse these
+  
 --
+
 - Infinitely many models to perform the same statistical inference
 
 --
@@ -306,7 +304,7 @@ class: list-space
 
 --
 
-&lt;br&gt;&lt;br&gt;
+&lt;br&gt;
 .content-box-purple[
 
 How do we improve an existing Feynman-Kac model?
@@ -319,23 +317,21 @@ class: inverse, center, middle, hide-logo
 ## Twisted Feynman-Kac models
 
 ---
+class: list-space
 
-## Twist and ~~shout~~ tilt
+## Twisting or change of measure
 
-### Exponential tilting/twisting
+.content-box-purple[
+`$$\mu^\psi(\text{d} x) = \frac{\mu(\text{d} x) \psi(x)}{Z}$$`
+]
 
-For some distribution `\(\mu\)`, define
-
-`$$\nu(\text{d} x) = \frac{\mu(\text{d} x) \exp(-\lambda x)}{Z}$$`
-with `\(Z = \int_{\mathsf{X}}\exp(-\lambda x) \mu(\text{d} x)\)`.
+with `\(Z = \mu(\psi) = \int_{\mathsf{X}}\psi(x) \mu(\text{d} x) &lt; \infty\)`.
 
 --
+- Exponential tilting/twisting: `\(\psi(x) = \exp(-\lambda x)\)`
 
-### Change of measure
-
-`$$\nu(\text{d} x) = \frac{\mu(\text{d} x) \psi(x)}{Z}$$`
-
-with `\(Z = \mu(\psi) = \int_{\mathsf{X}}\psi(x) \mu(\text{d} x)\)`.
+--
+- If continuous, new density `\(p_{\mu^{\psi}}(x) \propto p_\mu(x)\psi(x)\)`
 
 ---
 class: list-space
@@ -344,14 +340,13 @@ class: list-space
 
 .pull-left[
 ![](index_files/figure-html/fk-viz-1-tw-1.png)&lt;!-- --&gt;
-`\(M_1^\psi(x_0,\cdot) = N(x_0-2,1)\)`
 ]
 .pull-right[
 .content-box-purple[
 `$$\eta_0^\psi \overset{G_0^\psi}{\longrightarrow} \hat\eta_0^\psi \overset{M_1^\psi}{\longrightarrow} \eta_1^\psi$$`
 ]
-- `\(\eta_1^\psi = \eta_1\)`, twisting preserves path/terminal distribution
-- Using optimal `\(\psi\)`, potential/weights are constant
+- `\(\eta_1^\psi = \eta_1\)`, twisting preserves path/terminal **distribution**
+- Using optimal `\(\psi\)`, **potentials** are constant
 
 ]
 
@@ -362,21 +357,20 @@ class: list-space
 
 .pull-left[
 ![](index_files/figure-html/fk-viz-2-tw-1.png)&lt;!-- --&gt;
-`\(M_1^\psi(x_0,\cdot) = N(x_0-2,1)\)`
 ]
 .pull-right[
 .content-box-purple[
 `$$(\eta_0^\psi)^N \overset{G_0^\psi}{\longrightarrow} (\hat\eta_0^\psi)^N \overset{M_1^\psi}{\longrightarrow} (\eta_1^\psi)^N$$`
 ]
-- `\(\eta_1^\psi = \eta_1\)`, twisting preserves path/terminal distribution
-- Using optimal `\(\psi\)`, perfect samples from terminal distribution
+- Using optimal `\(\psi\)`, **weights** are constant
+- And no resampling required
 ]
 
 ---
 
 ## Twisting Feynman-Kac models
 
-Twist the Markov kernels
+Twist the Markov kernels with any measurable `\(\psi = \{\psi_0, \ldots, \psi_n\}\)`
 
 .content-box-purple[
 `$$\begin{aligned}M^{\color{red}{\psi}}_0(\text{d}x_0) &amp;= \frac{M_0(\text{d}x_0)\color{red}{\psi_0}(x_0)}{M_0(\color{red}{\psi_0})} \\
@@ -401,7 +395,7 @@ G^{\color{red}{\psi}}_n(x_n) &amp;= \frac{G_n(x_n)}{\color{red}{\psi_n}(x_n)}\en
 --
 
 &lt;br&gt;&lt;br&gt;
-Twisted mutation kernels and potential functions are then used by standard SMC
+Defines new Feynman-Kac model, can be used by standard (e.g. bootstrap) particle filter
 
 ---
 
@@ -413,19 +407,16 @@ Why??
 
 --
 
-.pull-left[.content-box-purple[
-`$$\gamma^{\color{red}{\psi}}_{p}(\text{d}x_p) = \gamma_{p}(\text{d}x_p)\color{red}{\psi_p}(x_p)$$`
-`$$\eta^{\color{red}{\psi}}_{p}(\text{d}x_p) = \frac{\eta_{p}(\text{d}x_p)\color{red}{\psi_p}(x_p)}{\eta_p(\color{red}{\psi_p})}$$`
-&lt;br&gt;
-]]
+
+.content-box-purple[
+Preserves terminal quantities
+`$$\hat\eta^{\psi}_{n} = \hat\eta_{n}, \qquad\hat{\gamma}^{\psi}_{n} = \hat{\gamma}_{n}, \qquad \hat{Z}^{\psi}_n = \hat{Z}_n$$`
+]
 
 --
 
-.pull-right[.content-box-purple[
-`$$\hat\eta^{\psi}_{n} = \hat\eta_{n}$$`
-`$$\hat{\boldsymbol{\gamma}}^{\psi}_{n} = \hat{\boldsymbol{\gamma}}_{n}$$`
-`$$\hat{Z}^{\psi} = \hat{Z}$$`
-]]
+Changes intermediate distributions, `\(\eta^{\psi}_p \neq \eta_p\)`
+
 ---
 
 ## Optimal twisting
@@ -436,17 +427,17 @@ If we choose
 `$$\psi_p^{\star}(x_p) = \mathbb{E}\left(\prod_{t=p}^{n}G_t(X_t)~\Big\vert~ X_p = x_p\right)$$`
 ]
 
-with `\(X_{0:n} \sim \boldsymbol{P}_n\)`, then 
+with `\(X_{0:n} \sim \boldsymbol{P}_n\)` (the underlying Markov chain), then 
 
 --
 
 .content-box-purple[
-`$$\hat{Z}_{\psi}^{N} \overset{a.s.}{=}  \hat{Z}$$` 
+`$$(\hat{Z}^{\psi})^{N} \overset{a.s.}{=}  \hat{Z}$$` 
 ]
 
 --
 
-and we have a **perfect** sampler for **finite** `\(N\)` (!) for the terminal distribution
+and **exact** samples from particle filter with finite `\(N\)` (!) for the terminal distribution
 
 ---
 
@@ -494,7 +485,7 @@ where `\(A\)` is PSD.
 Then `\(M_p^{\psi} = \mathcal{N}(f_{\psi}(x_{p-1}),\Sigma_{\psi})\)` can be calculated **analytically**
 ]
 
-❗ Almost all use-cases are normal
+❗ Almost all use-cases involve Gaussian mutation kernels and twisting functions
 
 ---
 class: inverse, center, middle, hide-logo

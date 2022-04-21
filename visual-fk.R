@@ -8,7 +8,7 @@ library(forcats)
 # mu(dx) G(x) ~ N(0,1)
 # int_X mu(dx) G(x) M(x,y) ~ N(1,2)
 
-anno_size = 8
+anno_size = 7
 
 d_initial <- dist_normal(mu = -1, sigma = sqrt(2))
 potfun <- dist_normal(mu = 1, sigma = sqrt(2))
@@ -44,16 +44,18 @@ s_df <- tibble(name = ordered(c("Initial", "Updated", "Predictive")),
 
 d_plot <- ggplot() + ggdist::stat_slab(aes(y = name, dist = dist), data = d_df) +
   ggdist::stat_slab(aes(y = "Initial", dist = potfun), fill = NA, colour = "red") + 
+  ggdist::stat_slab(aes(y = "Updated", dist = kerdist), fill = NA, colour = "blue", normalize = "all", linetype = "dashed") + 
   theme_bw() +
   scale_y_discrete(limits = rev) +
-  scale_x_continuous(limits = c(-10,12)) +
+  scale_x_continuous(limits = c(-12.5,12.5)) +
   ylab("") +
   xlab("") +
   theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(), panel.border = element_blank()) +
-  geom_text(aes(x = 9, y = "Initial"), label = "G[0](x)==phi(textstyle(frac(x-1,sqrt(2))))", parse = T, size=anno_size, nudge_y = 0.25, colour = "red") +
-  geom_text(aes(x = 9, y = "Initial"), label = "eta[0]==N(-1, 2)", parse = T, size=anno_size, nudge_y = 0.65) +
-  geom_text(aes(x = 9, y = "Updated"), label = "hat(eta)[0]==N(0, 1)", parse = T, size=anno_size, nudge_y = 0.45) +
-  geom_text(aes(x = 9, y = "Predictive"), label = "eta[1]==N(-2, 2)", parse = T, size=anno_size, nudge_y = 0.45)
+  geom_text(aes(x = 9, y = "Initial"), label = "G[0](x)==phi(textstyle(frac(x-1,sqrt(2))))", parse = T, size=anno_size, nudge_y = 0.45, colour = "red") +
+  geom_text(aes(x = -9, y = "Initial"), label = "eta[0]==N(-1, 2)", parse = T, size=anno_size, nudge_y = 0.45) +
+  geom_text(aes(x = -9, y = "Updated"), label = "hat(eta)[0]==N(0, 1)", parse = T, size=anno_size, nudge_y = 0.45) +
+  geom_text(aes(x = -9, y = "Predictive"), label = "eta[1]==N(-2, 2)", parse = T, size=anno_size, nudge_y = 0.45) +
+  geom_text(aes(x = 9, y = "Updated"), label = "atop(M[1](x[0],.)==phantom(0),N(x[0]-2, 1))", parse = T, size=anno_size, nudge_y = 0.45, colour = "blue")
 
 
 #d_plot + ggtitle("Normalised densities")
@@ -97,16 +99,19 @@ s_t_df <- tibble(name = ordered(c("Initial", "Updated", "Predictive")),
 
 d_t_plot <- ggplot() + ggdist::stat_slab(aes(y = name, dist = dist), data = d_t_df) +
   ggdist::stat_slab(aes(y = "Initial", dist = t_potfun), fill = NA, colour = "red") + 
+  ggdist::stat_slab(aes(y = "Updated", dist = kerdist), fill = NA, colour = "blue", normalize = "all", linetype = "dashed") + 
   theme_bw() + 
   scale_y_discrete(limits = rev) +
   ylab("") +
   xlab("") +
   xlim(layer_scales(d_plot)$x$range$range) +
   theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(), panel.border = element_blank()) +
-  geom_text(aes(x = 9, y = "Initial"), label = "G[0]^psi~(x)==1", parse = T, size=anno_size, nudge_y = 0.25, colour = "red") +
-  geom_text(aes(x = 9, y = "Initial"), label = "eta[0]^psi==N(0, 1)", parse = T, size=anno_size, nudge_y = 0.65) +
-  geom_text(aes(x = 9, y = "Updated"), label = "hat(eta)[0]^psi==N(0, 1)", parse = T, size=anno_size, nudge_y = 0.45) +
-  geom_text(aes(x = 9, y = "Predictive"), label = "eta[1]^psi==N(-2, 2)", parse = T, size=anno_size, nudge_y = 0.45)
+  geom_text(aes(x = 9, y = "Initial"), label = "{G[0]^psi}(x)==1", parse = T, size=anno_size, nudge_y = 0.45, colour = "red") +
+  geom_text(aes(x = -9, y = "Initial"), label = "eta[0]^psi==N(0, 1)", parse = T, size=anno_size, nudge_y = 0.45) +
+  geom_text(aes(x = -9, y = "Updated"), label = "hat(eta)[0]^psi==N(0, 1)", parse = T, size=anno_size, nudge_y = 0.45) +
+  geom_text(aes(x = -9, y = "Predictive"), label = "eta[1]^psi==N(-2, 2)", parse = T, size=anno_size, nudge_y = 0.45) +
+  geom_text(aes(x = 9, y = "Updated"), label = "atop({M[1]^psi}(x[0],.)==phantom(0),N(x[0]-2, 1))", parse = T, size=anno_size, nudge_y = 0.45, colour = "blue")
+
 
 ds_t_plot <- d_t_plot + 
   ggdist::stat_dots(aes(y = name, dist = dist), data = s_t_df, colour = "black", fill = "black")
