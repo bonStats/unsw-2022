@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Twisted SMC or: How I learned to stop worrying</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Joshua J Bon" />
+    <script src="libs/header-attrs-2.13/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/hygge.css" rel="stylesheet" />
+    <link rel="stylesheet" href="bon-qut-campus-title.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Twisted SMC or: How I learned to stop worrying
+## and love Feynman-Kac models
+### Joshua J Bon
+
+---
+
+class: center, middle
+
+## Acknowledgement of Country
+
+&lt;p style="text-align: center;"&gt;
+QUT acknowledges the Turrbal and Yugara as the First Nations owners of the lands where QUT now stands. We pay respect to their Elders, lores, customs and creation spirits. We recognise that these lands have always been places of teaching, research and learning. QUT acknowledges the important role Aboriginal and Torres Strait Islander people play within the QUT community.  
+&lt;/p&gt;
+
+
+
+&lt;style&gt;
+
+.list-space li {
+padding: 0.25cm;
+}
+
+.list-nobullet li {
+  list-style-type:none;
+}
+
+&lt;/style&gt;
+
+---
+class: list-space
+
+## 1-step Feynman-Kac
+
+.pull-left[
+![](index_files/figure-html/fk-viz-1-1.png)&lt;!-- --&gt;
+`\(M_1(x_0,\cdot) = N(x_0-2,1)\)`
+]
+.pull-right[
+.content-box-purple[
+`$$\eta_0 \overset{G_0}{\longrightarrow} \hat\eta_0 \overset{M_1}{\longrightarrow} \eta_1$$`
+]
+- `\(G_0\)` potential function, weights the **measure**
+- `\(M_1\)` mutation kernel, mutates the **measure**
+
+]
+
+---
+class: list-space
+
+## 1-step particle filter
+
+.pull-left[
+![](index_files/figure-html/fk-viz-2-1.png)&lt;!-- --&gt;
+`\(M_1(x_0,\cdot) = N(x_0-2,1)\)`
+]
+.pull-right[
+.content-box-purple[
+`$$\eta_0^N \overset{G_0}{\longrightarrow} \hat\eta_0^N \overset{M_1}{\longrightarrow} \eta_1^N$$`
+]
+- `\(G_0\)` potential function, weights the **particles**
+- `\(M_1\)` mutation kernel, mutates the **particles**
+
+]
+
+---
+
+## 🌈 Everything is an integral
+
+If `\(\mu\)` is a probability distribution (or measure) on measurable space `\((\mathsf{X},\mathcal{X})\)`
+
+.pull-left[.content-box-purple[
+
+`$$\text{For}~S \in \mathcal{X}, \quad \mu(S) = \int_{S} \mu(\text{d}x)$$`
+
+`$$\text{For}~\varphi:\mathsf{X}\rightarrow \mathbb{R}, \quad \mu(\varphi) = \int_{\mathsf{X}} \varphi(x) \mu(\text{d}x)$$`
+
+]]
+
+.pull-right[.content-box-red[
+
+Or with density (mass) function `\(p_{\mu}(x)\)`
+`$$\mu(\text{d}x) = p_{\mu}(x) \text{d}x, \quad \text{for}~x \in \mathsf{X}$$`
+
+]]
+
+
+&lt;br&gt;
+&lt;br&gt;
+
+- Implicit integrals/measures are defined by `\(\varphi(x) \mu(\text{d}x) \Longleftrightarrow \int_{S} \varphi(x) \mu(\text{d}x)\)`
+
+- `\(\varphi\)` is assumed to be measurable
+
+---
+
+## 🌈 Everything is an integral
+
+If `\(K\)` is a Markov kernel (or non-negative kernel) on measure space `\((\mathsf{X},\mathcal{X})\)`
+
+
+.pull-left[.content-box-purple[
+
+`$$\text{For}~v \in \mathsf{X}, S \in \mathcal{X}, \quad K(v,S) = \int_{S} K(v,\text{d}x)$$`
+
+`$$\text{For}~v \in \mathsf{X},\varphi:\mathsf{X}\rightarrow \mathbb{R}, \quad$$`
+`$$K(\varphi)(v) = \int_{\mathsf{X}} \varphi(x) K(v,\text{d}x)$$`
+
+]]
+
+.pull-right[.content-box-red[
+
+Or with density (mass) function `\(p_{K}(v,x)\)`
+`$$K(v,\text{d}x)  =p_{K}(v,x) \text{d}x, \quad \text{for}~v,x \in \mathsf{X}$$`
+
+]]
+
+
+
+- For a fixed `\(v \in \mathsf{X}\)`, `\(K(v,\cdot)\)` is a measure
+- For a fixed (measurable) function `\(\varphi\)`, `\(K(\varphi)(\cdot)\)` is a measurable function
+    - allows `\(\mu(K(\varphi))\)` notation
+
+
+---
+class: inverse, center, middle, hide-logo
+
+# Feynman-Kac models 
+
+---
+
+## Discrete-time Feynman-Kac models
+
+A recipe for sequential Monte Carlo algorithms, with ingredients...
+
+--
+
+.content-box-purple[
+#### (In)homogeneous Markov chain
+
+`$$\boldsymbol{P}_n(\text{d} x_{0:n}) = M_{0}(\text{d} x_{0})\prod_{t=1}^n M_{t}(x_{t-1}, \text{d} x_{t}) \quad \text{on}~(\mathsf{X}^{n+1},\mathcal{X}^{\otimes n+1})$$`
+]
+
+--
+
+.content-box-red[
+#### Potential functions
+
+`$$G_0(x_0), G_1(x_1), \ldots, G_n(x_n)$$`
+]
+
+--
+
+(But does not specify resampling mechanism)
+
+---
+
+## Dynamic model example: Linear Gaussian Markov model
+
+.pull-left[.content-box-purple[
+`$$M_0(\text{d}x_0) = \mathcal{N}(x_0;a_0,\Sigma_0)\text{d}x_0$$`
+
+`$$M_p(x_{p-1}, \text{d}x_p) = \mathcal{N}(x_p;Ax_{p-1},\Sigma_M)\text{d}x_p$$`
+
+`$$G_p(x_p) = \mathcal{N}(y_p;x_p,\Sigma_G)$$`
+]]
+
+.pull-right[.content-box-purple[
+
+- Inference over latent states
+
+- Unbiased estimate of normalising constant
+
+]]
+
+--
+
+&lt;img src="imgs/hmm_tikz.svg" width="550" style="display: block; margin: auto;" /&gt;
+
+--
+❓ Static models have a fixed number of unknown quantities
+
+---
+class: list-space
+
+## On the path space
+
+A sequence of iterated `\(\color{magenta}{\text{reweight}}\)` and `\(\color{blue}{\text{mutate}}\)` steps...
+
+--
+
+- `\(\gamma_0(\text{d} x_{0}) = M_0(\text{d}x_0)\)`
+
+--
+- `\(\boldsymbol{\gamma}_1(\text{d} x_{0:1}) = \gamma_0(\text{d} x_{0})\color{magenta}{G_0(x_0)}\color{blue}{M_1(x_0, \text{d}x_1)}\)` 
+
+--
+- `\(\boldsymbol{\gamma}_2(\text{d} x_{0:2}) = \boldsymbol{\gamma}_1(\text{d} x_{0:1})\color{magenta}{G_1(x_1)}\color{blue}{M_2(x_1, \text{d}x_2)}\)`
+
+---
+class: list-space
+
+## On the path space
+
+A sequence of iterated `\(\color{magenta}{\text{reweight}}\)` and `\(\color{blue}{\text{mutate}}\)` steps...
+
+
+
+- `\(\boldsymbol{\gamma}_p(\text{d} x_{0:p}) = \boldsymbol{\gamma}_{p-1}(\text{d} x_{0:p-1})\color{magenta}{G_{p-1}(x_{p-1})}\color{blue}{M_p(x_{p-1}, \text{d}x_p)}\)`
+
+--
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+`$$\boldsymbol{\gamma}_n(\text{d} x_{0:n}) = M_0(\text{d}x_0)\prod_{p=1}^{n}\color{magenta}{G_{p-1}(x_{p-1})}\color{blue}{M_{p}(x_{p-1},\text{d}x_p)}$$`
+--
+
+Where is `\(G_n\)`?
+
+--
+
+`$$\hat{\boldsymbol{\gamma}}_n(\text{d} x_{0:n}) = \boldsymbol{\gamma}_n(\text{d} x_{0:n})\color{magenta}{G_n(x_n)}$$`
+
+--
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+Predictive path measure `\(\boldsymbol{\gamma}_n\)`, updated path measure `\(\hat{\boldsymbol{\gamma}}_n\)`
+
+---
+
+## Marginal measures
+
+With `\(\gamma_0 = M_0\)` we can define using a recursive formula 
+
+`$$\begin{aligned}\gamma_{p}(S) &amp;= \int_{\mathsf{X}} \gamma_{p-1}(\text{d}x_{p-1})\color{magenta}{G_{p-1}(x_{p-1})}\color{blue}{M_{p}(x_{p-1},S)}\\
+\hat{\gamma}_{p}(\text{d}x_p) &amp;= \gamma_{p}(\text{d}x_p)\color{magenta}{G_p(x_p)}\end{aligned}$$`
+
+--
+
+Normalised?
+
+--
+
+`$$\begin{aligned}\eta_{p}(S) &amp;= \gamma_{p}(S)/\gamma_p(1) \\ 
+~\\
+\hat{\eta}_{p}(S) &amp;= \hat{\gamma}_{p}(S)/\hat{\gamma}_p(1)\end{aligned}$$`
+
+---
+
+## Feynman-Kac summary
+
+.pull-left[
+### Marginal space
+
+`\(x_{p} \in \mathsf{X}\)`
+
+|             | Measure             | Distribution        |
+| ----------- | :-----------------: | :-----------------: |
+| Predictive  | `\(\gamma_p\)`          | `\(\eta_p\)`            |
+| Updated     | `\(\hat{\gamma}_p\)`    | `\(\hat{\eta}_p\)`      |
+| Normalised  | ❌| ✅ |
+
+for `\(p \in \{0,1,\ldots,n\}\)`
+
+]
+
+.pull-right[
+### Path space
+
+`\(x_{0:p} \in \mathsf{X}^{p+1}\)` 
+
+|             | Measure             | Distribution        |
+| ----------- | :-----------------: | :-----------------: |
+| Predictive  | `\(\boldsymbol{\gamma}_p\)`       | `\(\boldsymbol{\eta}_p\)`            |
+| Updated     | `\(\hat{\boldsymbol{\gamma}}_p\)` | `\(\boldsymbol{\hat{\eta}}_p\)`      |
+| Normalised  | ❌          | ✅        |
+
+for `\(p \in \{0,1,\ldots,n\}\)`
+]
+
+---
+class: list-space
+
+## Feynman-Kac summary
+
+- The Feynman-Kac model defines the sequence of distributions and how we traverse through them
+    - `\(\gamma_{p-1}\)` reweight `\(\color{magenta}{G_{p-1}}\)`, mutate `\(\color{blue}{M_p}\)` to `\(\gamma_p\)`
+--
+- Infinitely many models to perform the same statistical inference
+
+--
+- Many **bad** models for SMC possible (variance of estimates)
+
+--
+
+&lt;br&gt;&lt;br&gt;
+.content-box-purple[
+
+How do we improve an existing Feynman-Kac model?
+
+]
+
+---
+class: inverse, center, middle, hide-logo
+
+## Twisted Feynman-Kac models
+
+---
+
+## Twist and ~~shout~~ tilt
+
+### Exponential tilting/twisting
+
+For some distribution `\(\mu\)`, define
+
+`$$\nu(\text{d} x) = \frac{\mu(\text{d} x) \exp(-\lambda x)}{Z}$$`
+with `\(Z = \int_{\mathsf{X}}\exp(-\lambda x) \mu(\text{d} x)\)`.
+
+--
+
+### Change of measure
+
+`$$\nu(\text{d} x) = \frac{\mu(\text{d} x) \psi(x)}{Z}$$`
+
+with `\(Z = \mu(\psi) = \int_{\mathsf{X}}\psi(x) \mu(\text{d} x)\)`.
+
+---
+class: list-space
+
+## 1-step Twisted Feynman-Kac
+
+.pull-left[
+![](index_files/figure-html/fk-viz-1-tw-1.png)&lt;!-- --&gt;
+`\(M_1^\psi(x_0,\cdot) = N(x_0-2,1)\)`
+]
+.pull-right[
+.content-box-purple[
+`$$\eta_0^\psi \overset{G_0^\psi}{\longrightarrow} \hat\eta_0^\psi \overset{M_1^\psi}{\longrightarrow} \eta_1^\psi$$`
+]
+- `\(\eta_1^\psi = \eta_1\)`, twisting preserves path/terminal distribution
+- Using optimal `\(\psi\)`, potential/weights are constant
+
+]
+
+---
+class: list-space
+
+## 1-step TFK particle filter
+
+.pull-left[
+![](index_files/figure-html/fk-viz-2-tw-1.png)&lt;!-- --&gt;
+`\(M_1^\psi(x_0,\cdot) = N(x_0-2,1)\)`
+]
+.pull-right[
+.content-box-purple[
+`$$(\eta_0^\psi)^N \overset{G_0^\psi}{\longrightarrow} (\hat\eta_0^\psi)^N \overset{M_1^\psi}{\longrightarrow} (\eta_1^\psi)^N$$`
+]
+- `\(\eta_1^\psi = \eta_1\)`, twisting preserves path/terminal distribution
+- Using optimal `\(\psi\)`, perfect samples from terminal distribution
+]
+
+---
+
+## Twisting Feynman-Kac models
+
+Twist the Markov kernels
+
+.content-box-purple[
+`$$\begin{aligned}M^{\color{red}{\psi}}_0(\text{d}x_0) &amp;= \frac{M_0(\text{d}x_0)\color{red}{\psi_0}(x_0)}{M_0(\color{red}{\psi_0})} \\
+&amp;~\\&amp;~\\
+M^{\color{red}{\psi}}_p(x_{p-1}, \text{d}x_p) &amp;= \frac{M_p(x_{p-1}, \text{d}x_p)\color{red}{\psi_p}(x_p)}{M_p(\color{red}{\psi_p})(x_{p-1})}\end{aligned}$$`
+]
+
+---
+
+## Twisting Feynman-Kac models
+
+Also "twist" the potential functions 
+
+.content-box-purple[
+`$$\begin{aligned} G^{\color{red}{\psi}}_0(x_0) &amp;= \frac{G_0(x_0)}{\color{red}{\psi_0}(x_0)}M_1(\color{red}{\psi_1})(x_0)M_0(\color{red}{\psi_0})\\
+&amp;~\\
+G^{\color{red}{\psi}}_p(x_p) &amp;= \frac{G_p(x_p)}{\color{red}{\psi_p}(x_p)}M_{p+1}(\color{red}{\psi_{p+1}})(x_p)\\
+&amp;~\\
+G^{\color{red}{\psi}}_n(x_n) &amp;= \frac{G_n(x_n)}{\color{red}{\psi_n}(x_n)}\end{aligned}$$`
+]
+
+--
+
+&lt;br&gt;&lt;br&gt;
+Twisted mutation kernels and potential functions are then used by standard SMC
+
+---
+
+## Twisting Feynman-Kac models
+
+Why??
+
+`$$\hat{\boldsymbol{\gamma}}^{\psi}_{n}(\text{d}x_{0:n}) = M_0^\psi(\text{d}x_0)G^{\psi}_0(x_0)\prod_{p=1}^{n}M_p(x_{p-1},\text{d}x_p)G^{\psi}_p(x_p)$$`
+
+--
+
+.pull-left[.content-box-purple[
+`$$\gamma^{\color{red}{\psi}}_{p}(\text{d}x_p) = \gamma_{p}(\text{d}x_p)\color{red}{\psi_p}(x_p)$$`
+`$$\eta^{\color{red}{\psi}}_{p}(\text{d}x_p) = \frac{\eta_{p}(\text{d}x_p)\color{red}{\psi_p}(x_p)}{\eta_p(\color{red}{\psi_p})}$$`
+&lt;br&gt;
+]]
+
+--
+
+.pull-right[.content-box-purple[
+`$$\hat\eta^{\psi}_{n} = \hat\eta_{n}$$`
+`$$\hat{\boldsymbol{\gamma}}^{\psi}_{n} = \hat{\boldsymbol{\gamma}}_{n}$$`
+`$$\hat{Z}^{\psi} = \hat{Z}$$`
+]]
+---
+
+## Optimal twisting
+
+If we choose
+
+.content-box-red[
+`$$\psi_p^{\star}(x_p) = \mathbb{E}\left(\prod_{t=p}^{n}G_t(X_t)~\Big\vert~ X_p = x_p\right)$$`
+]
+
+with `\(X_{0:n} \sim \boldsymbol{P}_n\)`, then 
+
+--
+
+.content-box-purple[
+`$$\hat{Z}_{\psi}^{N} \overset{a.s.}{=}  \hat{Z}$$` 
+]
+
+--
+
+and we have a **perfect** sampler for **finite** `\(N\)` (!) for the terminal distribution
+
+---
+
+## Iterated APF and Controlled SMC
+
+- IAPF [(Guarniero et al, 2017)](https://doi.org/10.1080/01621459.2016.1222291) and CSMC [(Heng et al, 2020)](https://doi.org/10.1214/19-AOS1914) use twisted FK models
+- Learn twisting functions using a recursion 
+
+--
+
+The optimal twisting functions satisfy
+
+`$$\psi_n^{\star}(x_n) = G_n(x_n)$$`
+
+`$$\psi_p^{\star}(x_p) = G_p(x_p)M_{p+1}(\psi_{p+1}^{\star})(x_p)$$`
+
+--
+
+Motivates recursive, iterative learning...
+
+--
+
+.content-box-purple[
+**Algorithm:** For class of approximate twisting function `\(\tilde{\psi}_p \in \mathsf{H}\)`
+
+1. Run particle filter with current `\(\psi\)`, generate `\(\zeta_p^i\)`
+2. Find new approximation of `\(\tilde{\psi}_{p}(\zeta_p^i) \approx G_p(\zeta_p^i)M_{p+1}(\tilde{\psi}_{p+1})(\zeta_p^i)\)` with backward recursion
+3. Repeat
+]
+
+---
+
+## Existing applications of recursive learning
+
+Twisted mutation `\(M_p^{\psi}\)` can be sampled from and constant `\(M_p(\psi_p)\)` can be calculated **analytically**.
+
+--
+
+.content-box-purple[
+Normal models and exponential-quadratic `\(\psi\)`
+`$$M_p = \mathcal{N}(f(x_{p-1}),\Sigma)$$`
+`$$\psi_p(x_p) = \exp\left(- x_{p}^{\top} A x_{p} + bx_{p} + c \right)$$`
+where `\(A\)` is PSD.
+
+Then `\(M_p^{\psi} = \mathcal{N}(f_{\psi}(x_{p-1}),\Sigma_{\psi})\)` can be calculated **analytically**
+]
+
+❗ Almost all use-cases are normal
+
+---
+class: inverse, center, middle, hide-logo
+
+## Beyond exact twisting ⭐
+
+---
+
+## Extending beyond the analytical case 
+
+What if there is no class of appropriate `\(\psi\)` functions that are tractable?
+
+- `\(M_p\)` intractable 
+- `\(M_p^{\psi}\)` unable to be sampled from
+
+--
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+.content-box-blue[
+**Idea**: Rejection sampler + Unbiased estimate of twisted potentials
+]
+
+---
+class: list-space
+
+## Extending beyond the analytical case 
+
+### Rejection sampler
+
+- Restrict `\(\psi: \mathsf{X}\rightarrow [0,1]\)`
+- Propose `\(x \sim M_p\)` until `\(\psi_p(x) &gt; U\)`, where `\(U \sim \text{Uniform}(0,1)\)`
+
+--
+
+Accepted realisations have the correct twisted distribution: `\(x \sim M_p^{\psi}\)`
+
+---
+## Extending beyond the analytical case 
+
+### Unbiased estimate of twisted potentials
+
+`$$\tilde{G}_p^{\psi}(x_p) = \frac{G_p(x_p)}{\psi_p(x_p)}\color{green}{\tilde{M}_{p+1}(\psi_{p+1})(x_p)}$$`
+
+--
+
+.content-box-purple[
+
+`$$\tilde{M}_{p+1}(\psi_{p+1})(x_p) = K^{-1}\sum_{i=1}^{K}\psi_{p+1}(u^{i}_{p+1}) \qquad \qquad \qquad u^{i}_{p+1} \sim M_{p+1}(x_p, \cdot)$$`
+
+]
+
+---
+class:list-space
+
+## Twisted models by rejection-sampling and unbiased potentials
+
+Applicable to **any** Feynman-Kac model with bounded `\(\psi\)` and where mutations can be sampled from, using 
+
+--
+
+- Rejection for twisted mutation
+    - Exact twist
+    - Potentially costly sampler
+
+--
+
+- Monte Carlo for twisted potential
+    - Simple 
+    - Potentially noisy estimate
+
+--
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+How to address concerns?
+
+---
+class: list-space
+
+## Controlling cost of rejection sampler
+
+- Rejection sampler for `\(M^{\omega}_p\)` has acceptance rate: `$$M_p(\omega_p)$$`
+
+- Conditional on `\(x_{p-1}\)` but embedded within SMC
+
+- Average acceptance rate `$$\hat{\eta}_{p-1}^{\omega}(M_p(\omega_p)) \quad \text{or} \quad M_0(\omega_{0})$$`
+
+---
+
+## Controlling cost of rejection sampler
+
+**Prop.** If we have a `\(\psi\)`-twisted Feynman-Kac model, then the average acceptance rates of a `\(\omega\)`-twisted model can be written as
+
+`$$\begin{aligned}
+\alpha_{p}^{\omega} &amp;\equiv \hat{\eta}_{p-1}^{\omega}(M_p(\omega_p)) =  \frac{\hat\eta_{p-1}^{\psi}( M_{p}(\omega_{p})^2 \cdot M_{p}(\psi_{p})^{-1} )}{\hat\eta_{p-1}^{\psi}( M_{p}(\omega_{p}) \cdot M_{p}(\psi_{p})^{-1})} ~\text{for}~p \in [n], \\
+\alpha_{0}^{\omega} &amp;\equiv M_0(\omega_{0}).
+\end{aligned}$$`
+
+--
+
+&lt;br&gt;&lt;br&gt;
+❗ A quantity for average RS acceptance rates within a particle filter
+&lt;br&gt;&lt;br&gt;
+--
+
+‼️ A way to estimate without ever running the same particle filter
+
+--
+
+.content-box-purple[
+**Target `\(\alpha\)`**: Use in the iterative learning algorithm and temper the new twisting functions
+]
+
+---
+class: list-space
+
+## Sketch of proof
+
+New twisting functions decomposed as `\(\omega_p = \psi_p \cdot \phi_p\)`
+
+- Two elegant properties
+    - `\((\hat\gamma_{p-1}^{\psi})^\phi = \hat\gamma_{p-1}^{\psi\cdot\phi}\)`
+    - `\((\hat\gamma_{p-1})^\phi(\text{d} x_{p-1}) = \hat{\gamma}_{p-1}(\text{d} x_{p-1}) M_{p}(\phi_{p})(x_{p-1})\)`
+- Yields
+    - `\(\hat{\gamma}_{p-1}^{\omega}(\text{d} x_{p-1}) = \hat{\gamma}_{p-1}^{\psi}(\text{d} x_{p-1}) M_{p}^{\psi}(\phi_{p})(x_{p-1})\)`
+    - Normalise then simplify
+  
+Can't evaluate `\(M_{p}^{\psi}(\phi_{p})(x_{p-1})\)` analytically, but substitute `\(M_{p}^{\psi}(\phi_{p}) = \frac{ M_{p}(\omega_{p})}{M_{p}(\psi_{p})}\)`
+
+---
+
+## Analysing PF variance with estimate of twisted potentials
+
+**Prop**: If the relative variance of estimated potential is uniformly bounded, that is
+$$
+\mathrm{Var}\left(\frac{\tilde{G}_p(\tilde{x}_p)}{G_p(x_p)}~\Big\vert~ x_p\right) &lt; C
+$$
+then the asymptotic variance satisfies
+
+`$$\tilde{\sigma}_n^{2}(\varphi \otimes 1) &lt; (C+1) \sigma_n^{2}(\varphi)$$`
+---
+class: list-space
+
+## Flavour of proof
+
+- Define a new equivalent Feynman-Kac model on augmented state-space
+    - Extended state-space accounts for randomness of twisted potential estimate
+- Asymptotic variance
+
+`$$\begin{aligned}
+\tilde{\sigma}^2_n(\varphi \otimes 1) &amp;= N^{-1}\sum_{p=0}^{n} \tilde{v}_{p,n}(\varphi \otimes 1)
+\end{aligned}$$`
+
+Bound each `\(v_{p,n}(\varphi)\)` using  `\(\mathrm{Var}\left(\frac{\tilde{G}_p(\tilde{x}_p)}{G_p(x_p)}~\Big\vert~ x_p\right) &lt; C\)`
+
+--
+
+&lt;br&gt;&lt;br&gt;
+❗ Effect of using estimate is isolated, does not compound (asymptotically)
+
+
+---
+
+## Example: Linear Gaussian Markov model
+
+Model
+
+- `\(d=3\)`, `\(n = 200\)`
+- `\(a_0 = [1~1~1]\)`, `\(\Sigma_0 = I_{d}\)`
+- `\(\Sigma_M = I_{d}\)`
+- `\(\Sigma_G = \sigma^2_{G}I_{d}\)` with `\(\sigma^2_{G} \in \{0.25,1.0\}\)`
+- `\(A\)` are such that `\(A_{i,j} = a^{\vert i-j\vert + 1}\)` with `\(a = 0.42\)`
+
+Algorithm
+
+- 3 iterations of iterative learning
+    - `\(\alpha\)` target `\(= 0.04, 0.02, 0.01\)`
+- `\(N = 200\)` particles for twisted models
+- Dynamic multinomial resampling with `\(N/2\)` threshold
+- `\(\tilde{N} \in \{25,50,100\}\)`
+ 
+Tested over 100 repetitions 
+
+---
+
+## Results
+
+&lt;img src="imgs/log-sim-Z-lghmm-res.svg" width="450" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: list-space
+
+## Future work and opportunities 
+
+
+**Rejection-based twisting**
+
+- Other types of exact samplers
+    - Use hybrid between rejection and analytical integration for better performance 
+
+- Apply rejection-based twisting ideas to new statistical models
+
+- Relate average acceptance rate to asymptotic variance to choose target acceptance rate
+    - Identify models method will be appropriate for
+
+
+---
+class: inverse, center, middle, hide-logo
+
+## Thank you for listening!
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "%current%",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<style>
+.logo {
+  background-image: url(imgs/QUT_SQUARE_RGB_XLGE.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  width: 100px;
+  height: 100px;
+  z-index: 0;
+}
+</style>
+
+<script>
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+    // ':not(.inverse)' +
+    ':not(.hide-logo)'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="logo"></div>';
+  });
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
