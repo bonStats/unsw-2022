@@ -103,37 +103,15 @@ Particle filters for dynamic models with **difficult/intractable transition dens
 
 `$$\hat{Z}_n = \int_{\mathsf{X}^{n+1}}m_0(x_0)G_0(x_0,y_0)\prod_{p=1}^{n}m_p(x_{p-1},x_{p})G_p(x_p,y_p)\text{d}x_0\cdots\text{d}x_n$$`
 
-- Mutation: `\(m_p\)` is the density for `\(M_p\)`
-- Potential: `\(G_p\)` is the likelihood of `\(y_p\)`
----
+- Mutation: `\(m_p\)` is the density for `\(M_p\)`, potential: `\(G_p\)` is the likelihood of `\(y_p\)`
 
-## Particle filters
-
-Initial distribution `\(M_0\)` (or `\(m_0\)`) then for `\(p = 1, 2, \ldots, n\)`
-
---
-
-.full-width[.content-box-red[
-🌶 **Update**
-- Weight with potential `\(G_{p-1}\)`
-- Resample: Randomly select particles according to weight
-- Survival of the fittest
-]]
-
---
-
-.full-width[.content-box-purple[
-🌶 **Predict**
-- Mutate samples with `\(M_p\)`
-]]
-
---
-
-Finally, terminal update step with `\(G_n\)` 
+- Particle filters exploit the conditional structure
 
 ---
 
 ## 🌈 Everything is an integral
+
+--
 
 If `\(\mu\)` is a probability distribution (or measure) on measurable space `\((\mathsf{X},\mathcal{X})\)`,
 
