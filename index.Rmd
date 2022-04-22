@@ -1,6 +1,6 @@
 ---
-title: "Twisted: Improving particle filters by learning modified paths"
-subtitle: ""
+title: "Twisted: Improving particle filters"
+subtitle: "by learning modified paths"
 author: "Joshua J Bon"
 institute: "Mathematics Sciences, QUT"
 date: "22-04-2022"
@@ -176,9 +176,7 @@ Joint work with
 Institutions and Groups
 
 - **School of Mathematical Sciences, QUT**
-- **ARC Centre of Excellence for Mathematical and Statistical Frontiers**
 - **QUT Centre for Data Science**
-- **Bayesian Research and Applications Group**
 
 ---
 class: list-space
@@ -292,21 +290,6 @@ $$\text{For}~\varphi:\mathsf{X}\rightarrow \mathbb{R}, \quad \mu(\varphi) = \int
 
 - $\varphi$ is assumed to be measurable
 
----
-.pull-left[.content-box-red[
-
-Or with density (mass) function $p_{K}(v,x)$
-$$K(v,\text{d}x)  =p_{K}(v,x) \text{d}x, \quad \text{for}~v,x \in \mathsf{X}$$
-
-]]
-
-
-.pull-right[.content-box-red[
-
-Or with density (mass) function $p_{\mu}(x)$
-$$\mu(\text{d}x) = p_{\mu}(x) \text{d}x, \quad \text{for}~x \in \mathsf{X}$$
-
-]]
 
 ---
 
@@ -387,8 +370,10 @@ $$\eta_0^N \overset{G_0}{\longrightarrow} \hat\eta_0^N \overset{M_1}{\longrighta
 
 With $\gamma_0 = M_0$ we can define marginal predictive via recursion 
 
+.content-box-purple[
 $$\begin{aligned}\gamma_{p}(S) &= \int_{\mathsf{X}} \gamma_{p-1}(\text{d}x_{p-1})\color{red}{G_{p-1}(x_{p-1})}\color{blue}{M_{p}(x_{p-1},S)}\\
 \eta_{p}(S) &= \frac{\gamma_{p}(S)}{Z_p}\end{aligned}$$
+]
 
 --
 
@@ -425,9 +410,8 @@ class: list-space
  - Path measure (and distribution)
  - Sequence of marginal distributions 
  - How we traverse these
-  
---
 
+--
 - Infinitely many models to perform the same statistical inference
 
 --
@@ -554,7 +538,7 @@ $$\hat\eta^{\psi}_{n} = \hat\eta_{n}, \qquad\hat{\gamma}^{\psi}_{n} = \hat{\gamm
 
 --
 
-Changes intermediate distributions, $\eta^{\psi}_p \neq \eta_p$
+But does change intermediate distributions, $\eta^{\psi}_p \neq \eta_p$
 
 ---
 
@@ -621,10 +605,12 @@ $$M_p = \mathcal{N}(f(x_{p-1}),\Sigma)$$
 $$\psi_p(x_p) = \exp\left(- x_{p}^{\top} A x_{p} + bx_{p} + c \right)$$
 where $A$ is PSD.
 
-Then $M_p^{\psi} = \mathcal{N}(f_{\psi}(x_{p-1}),\Sigma_{\psi})$ can be calculated **analytically**
+Then $M_p^{\psi}(x_{p-1}, \cdot) = \mathcal{N}(f_{\psi}(x_{p-1}),\Sigma_{\psi})$ can be calculated **analytically**
 ]
 
-`r emo::ji("exclamation_mark")` Almost all use-cases involve Gaussian mutation kernels and twisting functions
+
+--
+`r emo::ji("exclamation_mark")` Almost all current methods are for Gaussian mutation kernels and twisting functions
 
 ---
 class: inverse, center, middle, hide-logo
@@ -638,7 +624,7 @@ class: inverse, center, middle, hide-logo
 What if there is no class of appropriate $\psi$ functions that are tractable?
 
 - $M_p$ intractable or difficult to work with
-- $M_p^{\psi}$ unable to be sampled from
+- $M_p^{\psi}$ unable to be sampled from directly
 
 --
 <br><br><br>
@@ -654,11 +640,11 @@ class: list-space
 ### Rejection sampler
 
 - Restrict $\psi: \mathsf{X}\rightarrow [0,1]$
-- Propose $x \sim M_p$ until $\psi_p(x) > U$, where $U \sim \text{Uniform}(0,1)$
+- Propose $X \sim M_p$ until $\psi_p(X) > U$, where $U \sim \text{Uniform}(0,1)$
 
 --
 
-Accepted realisations have the correct twisted distribution: $x \sim M_p^{\psi}$
+Accepted realisations have the correct twisted distribution: $X \sim M_p^{\psi}$
 
 ---
 ## Extending beyond the analytical case 
@@ -671,7 +657,7 @@ $$\tilde{G}_p^{\psi}(x_p) = \frac{G_p(x_p)}{\psi_p(x_p)}\color{green}{\tilde{M}_
 
 .content-box-purple[
 
-$$\tilde{M}_{p+1}(\psi_{p+1})(x_p) = K^{-1}\sum_{i=1}^{K}\psi_{p+1}(u^{i}_{p+1}) \qquad \qquad \qquad u^{i}_{p+1} \sim M_{p+1}(x_p, \cdot)$$
+$$\tilde{M}_{p+1}(\psi_{p+1})(x_p) = K^{-1}\sum_{i=1}^{K}\psi_{p+1}(U^{i}_{p+1}) \qquad \qquad \qquad U^{i}_{p+1} \sim M_{p+1}(x_p, \cdot)$$
 
 ]
 
@@ -684,15 +670,22 @@ Applicable to **any** Feynman-Kac model with bounded $\psi$ and where mutations 
 
 --
 
-- Rejection for twisted mutation
-    - Exact twist
-    - Potentially costly sampler
+.pull-left[.content-box-purple[
+**Rejection sampler** for twisted mutation kernel
+
+- Exact twisting
+- Potentially costly sampler
+]]
+
 
 --
+.pull-right[.content-box-purple[
+**MC estimate** for twisted potential function
 
-- Monte Carlo for twisted potential
-    - Simple 
-    - Potentially noisy estimate
+- Simple 
+- Potentially noisy estimate
+]]
+
 
 --
 
@@ -704,72 +697,98 @@ class: list-space
 
 ## Controlling cost of rejection sampler
 
-- Rejection sampler for $M^{\omega}_p$ has acceptance rate: $$M_p(\omega_p)$$
+Rejection sampler for $M^{\omega}_p$ has acceptance rate: 
 
-- Conditional on $x_{p-1}$ but embedded within SMC
+$$M_p(\omega_p)(x_{p-1}) = \int_{\mathsf{X}}\omega_p(x_p)M_p(x_{p-1}, \text{d}x_p)$$
+Normalising constant conditional on $x_{p-1}$.
 
-- Average acceptance rate $$\hat{\eta}_{p-1}^{\omega}(M_p(\omega_p)) \quad \text{or} \quad M_0(\omega_{0})$$
+
+--
+Average acceptance rate (rejection sampler within SMC sampler) is
+
+.content-box-purple[
+$$\begin{aligned}
+\alpha_p^{\omega} &= \hat{\eta}_{p-1}^{\omega}(M_p(\omega_p)) ~\text{for}~p=1,\ldots,n\\ 
+\alpha_0 &= M_0(\omega_{0})\end{aligned}$$
+]
+
+--
+
+How to estimate before running the particle filter (for $p\neq 0$)?
 
 ---
 
 ## Controlling cost of rejection sampler
 
+.content-box-red[
 **Prop.** If we have a $\psi$-twisted Feynman-Kac model, then the average acceptance rates of a $\omega$-twisted model can be written as
 
 $$\begin{aligned}
-\alpha_{p}^{\omega} &\equiv \hat{\eta}_{p-1}^{\omega}(M_p(\omega_p)) =  \frac{\hat\eta_{p-1}^{\psi}( M_{p}(\omega_{p})^2 \cdot M_{p}(\psi_{p})^{-1} )}{\hat\eta_{p-1}^{\psi}( M_{p}(\omega_{p}) \cdot M_{p}(\psi_{p})^{-1})} ~\text{for}~p \in [n], \\
-\alpha_{0}^{\omega} &\equiv M_0(\omega_{0}).
+\alpha_{p}^{\omega} &=  \frac{\hat\eta_{p-1}^{\psi}( M_{p}(\omega_{p})^2 \cdot M_{p}(\psi_{p})^{-1} )}{\hat\eta_{p-1}^{\psi}( M_{p}(\omega_{p}) \cdot M_{p}(\psi_{p})^{-1})} ~\text{for}~p \in [n]
 \end{aligned}$$
+]
+
 
 --
-
-<br><br>
 `r emo::ji("exclamation_mark")` A quantity for average RS acceptance rates within a particle filter
-<br><br>
---
 
-`r emo::ji("double_exclamation_mark")` A way to estimate without ever running the same particle filter
 
 --
+`r emo::ji("double_exclamation_mark")` Estimate without running the particle filter for the $\omega$-twisted FK model
 
+
+--
 .content-box-purple[
 **Target $\alpha$**: Use in the iterative learning algorithm and temper the new twisting functions
 ]
+
 
 ---
 class: list-space
 
 ## Sketch of proof
 
-New twisting functions decomposed as $\omega_p = \psi_p \cdot \phi_p$
+`r emo::ji("point_right")` New twisting functions decomposed as $\omega_p = \psi_p \cdot \phi_p$
 
-- Two elegant properties
-    - $(\hat\gamma_{p-1}^{\psi})^\phi = \hat\gamma_{p-1}^{\psi\cdot\phi}$
-    - $(\hat\gamma_{p-1})^\phi(\text{d} x_{p-1}) = \hat{\gamma}_{p-1}(\text{d} x_{p-1}) M_{p}(\phi_{p})(x_{p-1})$
-- Yields
-    - $\hat{\gamma}_{p-1}^{\omega}(\text{d} x_{p-1}) = \hat{\gamma}_{p-1}^{\psi}(\text{d} x_{p-1}) M_{p}^{\psi}(\phi_{p})(x_{p-1})$
-    - Normalise then simplify
-  
-Can't evaluate $M_{p}^{\psi}(\phi_{p})(x_{p-1})$ analytically, but substitute $M_{p}^{\psi}(\phi_{p}) = \frac{ M_{p}(\omega_{p})}{M_{p}(\psi_{p})}$
+Two nice properties
+
+- $(\hat\gamma_{p-1}^{\psi})^\phi = \hat\gamma_{p-1}^{\psi\cdot\phi}$
+- $\hat\gamma_{p-1}^\phi(\text{d} x_{p-1}) = \hat{\gamma}_{p-1}(\text{d} x_{p-1}) M_{p}(\phi_{p})(x_{p-1})$
+
+
+--
+Yields
+
+- $\hat{\gamma}_{p-1}^{\omega}(\text{d} x_{p-1}) = \hat{\gamma}_{p-1}^{\psi}(\text{d} x_{p-1}) M_{p}^{\psi}(\phi_{p})(x_{p-1})$
+
+
+--
+Use to express $\hat{\eta}_{p-1}^{\omega}(M_p(\omega_p))$ without $\omega$-twisting
+
+And substitute $M_{p}^{\psi}(\phi_{p}) = \frac{ M_{p}(\omega_{p})}{M_{p}(\psi_{p})}$ everywhere
+
 
 ---
 
 ## Analysing PF variance with estimate of twisted potentials
 
-**Prop**: If the relative variance of estimated potential is uniformly bounded, that is
+.content-box-red[
+**Prop**: If the relative variance of random-potential is uniformly bounded, that is
 $$
 \mathrm{Var}\left(\frac{\tilde{G}_p(\tilde{x}_p)}{G_p(x_p)}~\Big\vert~ x_p\right) < C
 $$
 then the asymptotic variance satisfies
 
 $$\tilde{\sigma}_n^{2}(\varphi \otimes 1) < (C+1) \sigma_n^{2}(\varphi)$$
+]
+
 ---
 class: list-space
 
 ## Flavour of proof
 
-- Define a new equivalent Feynman-Kac model on augmented state-space
-    - Extended state-space accounts for randomness of twisted potential estimate
+- Define a new equivalent Feynman-Kac model on augmented state-space $X_p, U_p$
+    - $U_p \sim M_{p+1}(x_p, \cdot)$
 - Asymptotic variance
 
 $$\begin{aligned}

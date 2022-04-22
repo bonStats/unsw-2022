@@ -14,9 +14,10 @@
 }
 
 .title-slide h2 {
-  color: #b56363;
-  font-weight: 550;
+  color: #FFFFFF;
+  font-weight: 600;
   text-align: right !important;
+  font-size: 230%;
 }
 
 .title-slide h3 {
