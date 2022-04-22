@@ -255,61 +255,62 @@ Finally, terminal update step with $G_n$
 
 ## `r emo::ji("rainbow")` Everything is an integral
 
-If $\mu$ is a probability distribution (or measure) on measurable space $(\mathsf{X},\mathcal{X})$
+If $\mu$ is a probability distribution (or measure) on measurable space $(\mathsf{X},\mathcal{X})$,
+
+for $S \in \mathcal{X}$ and measurable $\varphi:\mathsf{X}\rightarrow \mathbb{R}$
 
 .content-box-purple[
 
-$$\text{For}~S \in \mathcal{X}, \quad \mu(S) = \int_{S} \mu(\text{d}x)$$
-
-$$\text{For}~\varphi:\mathsf{X}\rightarrow \mathbb{R}, \quad \mu(\varphi) = \int_{\mathsf{X}} \varphi(x) \mu(\text{d}x)$$
+$$\mu(S) = \int_{S} \mu(\text{d}x)$$
+$$\quad \mu(\varphi) = \int_{\mathsf{X}} \varphi(x) \mu(\text{d}x)$$
 ]
+
 
 --
 <br>
 
-- Implicit integrals/measures are defined by $\varphi(x) \mu(\text{d}x) \Longleftrightarrow \int_{S} \varphi(x) \mu(\text{d}x)$
-
-- $\varphi$ is assumed to be measurable
+- Distributions (or measures) defined implicitly by $\varphi(x) \mu(\text{d}x) \Longleftrightarrow \int_{S} \varphi(x) \mu(\text{d}x)$
 
 ---
 
 ## `r emo::ji("rainbow")` Everything is an integral
 
-If $\mu$ is a probability distribution (or measure) on measurable space $(\mathsf{X},\mathcal{X}) = \color{red}{(\mathbb{R},\mathscr{B}(\mathbb{R}))}$
+If $\mu$ is a probability distribution (or measure) on measurable space $(\mathsf{X},\mathcal{X}) = \color{red}{(\mathbb{R},\mathscr{B}(\mathbb{R}))}$,
+
+for $S \in \mathcal{X}$ and measurable $\varphi:\mathsf{X}\rightarrow \mathbb{R}$
 
 .content-box-purple[
 
-$$\text{For}~S \in \mathcal{X}, \quad \mu(S) = \int_{S} \color{red}{p_\mu(x)\text{d}x}$$
+$$\mu(S) = \int_{S} \color{red}{p_\mu(x)\text{d}x}$$
 
-$$\text{For}~\varphi:\mathsf{X}\rightarrow \mathbb{R}, \quad \mu(\varphi) = \int_{\mathsf{X}} \varphi(x) \color{red}{p_\mu(x)\text{d}x}$$
+$$\mu(\varphi) = \int_{\mathsf{X}} \varphi(x) \color{red}{p_\mu(x)\text{d}x}$$
 ]
 
 
 <br>
-- Implicit integrals/measures are defined by $\varphi(x) \mu(\text{d}x) \Longleftrightarrow \int_{S} \varphi(x) \color{red}{p_\mu(x)\text{d}x}$
-
-- $\varphi$ is assumed to be measurable
+- Distributions (or measures) defined implicitly by $\varphi(x) \mu(\text{d}x) \Longleftrightarrow \int_{S} \varphi(x) \color{red}{p_\mu(x)\text{d}x}$
 
 
 ---
+class: list-space
 
 ## `r emo::ji("rainbow")` Everything is an integral
 
-If $K$ is a Markov kernel (or non-negative kernel) on measure space $(\mathsf{X},\mathcal{X})$
+If $K$ is a Markov kernel (or non-negative kernel) on measure space $(\mathsf{X},\mathcal{X})$,
 
+for $v \in \mathsf{X}$, $S \in \mathcal{X}$, and measurable $\varphi:\mathsf{X}\rightarrow \mathbb{R}$
 
 .content-box-purple[
 
-$$\text{For}~v \in \mathsf{X}, S \in \mathcal{X}, \quad K(v,S) = \int_{S} K(v,\text{d}x)$$
+$$K(v,S) = \int_{S} K(v,\text{d}x)$$
 
-$$\text{For}~v \in \mathsf{X},\varphi:\mathsf{X}\rightarrow \mathbb{R}, \quad K(\varphi)(v) = \int_{\mathsf{X}} \varphi(x) K(v,\text{d}x)$$
+$$K(\varphi)(v) = \int_{\mathsf{X}} \varphi(x) K(v,\text{d}x)$$
 ]
 
 --
 
 - For a fixed $v \in \mathsf{X}$, $K(v,\cdot)$ is a measure
-- For a fixed (measurable) function $\varphi$, $K(\varphi)(\cdot)$ is a measurable function
-    - allows $\mu(K(\varphi))$ notation
+- $K(\varphi)(\cdot)$ is a measurable function, allows $\mu(K(\varphi))$ notation
 
 ---
 class: inverse, center, middle, hide-logo
@@ -359,7 +360,9 @@ d_plot +
 $$\eta_0^N \overset{G_0}{\longrightarrow} \hat\eta_0^N \overset{M_1}{\longrightarrow} \eta_1^N$$
 ]
 - $G_0$ potential, weights initial **particles**
- - Estimate $Z_1$, self-normalised IS
+ - Normalise with self-normalised IS
+ - Estimate $Z_1$
+ - Resample?
 - $M_1$ kernel, mutates updated **particles**
 
 ]
@@ -368,21 +371,21 @@ $$\eta_0^N \overset{G_0}{\longrightarrow} \hat\eta_0^N \overset{M_1}{\longrighta
 
 ## n-step model
 
-With $\gamma_0 = M_0$ we can define marginal predictive via recursion 
+With $\gamma_0 = M_0$ we can define marginal *predictive* **measures** and **distributions** via recursion 
 
 .content-box-purple[
-$$\begin{aligned}\gamma_{p}(S) &= \int_{\mathsf{X}} \gamma_{p-1}(\text{d}x_{p-1})\color{red}{G_{p-1}(x_{p-1})}\color{blue}{M_{p}(x_{p-1},S)}\\
-\eta_{p}(S) &= \frac{\gamma_{p}(S)}{Z_p}\end{aligned}$$
+$$\gamma_{p}(S) = \int_{\mathsf{X}} \gamma_{p-1}(\text{d}x_{p-1})\color{red}{G_{p-1}(x_{p-1})}\color{blue}{M_{p}(x_{p-1},S)} \qquad\qquad
+\eta_{p}(S) = \frac{\gamma_{p}(S)}{Z_p}$$
 ]
 
 --
 
-And updated versions
+And *updated* counterparts
 
-$$\begin{aligned}\hat{\gamma}_{p}(\text{d}x_p) &= \gamma_{p}(\text{d}x_p)\color{red}{G_p(x_p)} \\ 
-~\\
-\hat{\eta}_{p}(S) &= \frac{\hat{\gamma}_{p}(S)}{\hat{Z}_p}\end{aligned}$$
-
+.content-box-purple[
+$$\hat{\gamma}_{p}(\text{d}x_p) = \gamma_{p}(\text{d}x_p)\color{red}{G_p(x_p)} \qquad\qquad
+\hat{\eta}_{p}(S) = \frac{\hat{\gamma}_{p}(S)}{\hat{Z}_p}$$
+]
 
 ---
 
@@ -544,7 +547,7 @@ But does change intermediate distributions, $\eta^{\psi}_p \neq \eta_p$
 
 ## Optimal twisting
 
-If we choose
+If we use twisting functions that incorporate all future information
 
 .content-box-red[
 $$\psi_p^{\star}(x_p) = \mathbb{E}\left(\prod_{t=p}^{n}G_t(X_t)~\Big\vert~ X_p = x_p\right)$$
@@ -785,7 +788,7 @@ $$\tilde{\sigma}_n^{2}(\varphi \otimes 1) < (C+1) \sigma_n^{2}(\varphi)$$
 ---
 class: list-space
 
-## Flavour of proof
+## Rough sketch of proof
 
 - Define a new equivalent Feynman-Kac model on augmented state-space $X_p, U_p$
     - $U_p \sim M_{p+1}(x_p, \cdot)$
@@ -795,7 +798,7 @@ $$\begin{aligned}
 \tilde{\sigma}^2_n(\varphi \otimes 1) &= N^{-1}\sum_{p=0}^{n} \tilde{v}_{p,n}(\varphi \otimes 1)
 \end{aligned}$$
 
-Bound each $v_{p,n}(\varphi)$ using  $\mathrm{Var}\left(\frac{\tilde{G}_p(\tilde{x}_p)}{G_p(x_p)}~\Big\vert~ x_p\right) < C$
+Bound each $\tilde{v}_{p,n}(\varphi)$ using  $\mathrm{Var}\left(\frac{\tilde{G}_p(\tilde{x}_p)}{G_p(x_p)}~\Big\vert~ x_p\right) < C$
 
 --
 
@@ -805,7 +808,7 @@ Bound each $v_{p,n}(\varphi)$ using  $\mathrm{Var}\left(\frac{\tilde{G}_p(\tilde
 
 ---
 
-## Example: Linear Gaussian Markov model
+## Example: Linear Gaussian Hidden Markov model
 
 Model
 
@@ -817,41 +820,126 @@ Model
 
 Algorithm
 
+- Exponential quadratic twisting function
 - 3 iterations of iterative learning
     - $\alpha$ target $= 0.04, 0.02, 0.01$
 - $N = 200$ particles for twisted models
 - Dynamic multinomial resampling with $N/2$ threshold
 - $\tilde{N} \in \{25,50,100\}$
  
-Tested over 100 repetitions 
+Tested over 100 repetitions
+
+- compare against memory (S = particle storage)
+- computation (C = number of mutation draws)
 
 ---
 
-## Results
 
-```{r twist-rej, echo=FALSE, eval=TRUE, fig.align='center', out.width= 450}
+```{r twist-rej, echo=FALSE, eval=TRUE, fig.align='center', out.width= 640}
 knitr::include_graphics("imgs/log-sim-Z-lghmm-res.svg")
+```
+
+---
+class: list-space
+
+## Partial exact twisting
+
+.content-box-red[
+With tempering, controlling acceptance rate alters twisting functions from those learned. 
+]
+
+
+--
+For some Markov kernels
+
+- Decompose twisting functions $\psi_p = \varrho_p \cdot \omega_p$ such that
+- An exact sampler for $M_p^\varrho$ exists
+- Then use rejection sampling for remainder $\omega_p$
+
+
+--
+.content-box-blue[
+**Idea**: Choose $\varrho_p$ to maximise acceptance rates
+]
+
+---
+
+## Stochastic Volatility Model
+
+.content-box-purple[
+$R_t$ returns with variance $X_t$ governed by
+$$\begin{split}
+    R_t &= X_t^{1/2}Z_t \\
+    d X_t &= (\phi_1 - \phi_2 X_{t}) d t +\phi_3 X_t^{1/2} dW_t
+\end{split}$$
+]
+
+- $Z_t \sim \mathcal{N}(0,\sigma^2)$
+- Brownian motion $W_t$
+- Model from e.g. [Martin et al, 2019](https://doi.org/10.1080/10618600.2018.1552154)
+
+--
+
+
+- Unit increments of $X_t$ follow scaled non-central chi-square distribution
+- Can be exponentially tilted
+
+
+---
+## Example: Stochastic Volatility Model
+
+Data
+
+- $n = 2000$
+- $\phi_1 =0.1$, $\phi_2 = 0.5$, $\phi_3 = 0.1$, and $\sigma = 0.25$ 
+
+Model
+
+- $\phi_1 =0.09$, $\phi_2 = 0.45$, $\phi_3 = 0.11$, and $\sigma = 0.25$
+
+Algorithm
+
+- Exp-quadratic twisting (rejection) + Exp-linear twisting (analytical)
+- 2 iterations of iterative learning, $N = 100$
+- Final twisted particle filter  $N = 250$
+- Dynamic multinomial resampling with $N/2$ threshold
+ 
+Tested over 100 repetitions
+
+- compare against memory (S = particle storage)
+- computation (C = number of mutation draws)
+
+---
+
+```{r sv-res, echo=FALSE, eval=TRUE, fig.align='center', out.width= 700}
+knitr::include_graphics("imgs/sv-log-sim-Z-N100-100-250-MC2-NL-10-sig025.png")
 ```
 
 
 ---
 class: list-space
 
-## Future work and opportunities 
+## Conclusions
 
+- Twisting models can define perfect samplers
 
-**Rejection-based twisting**
+--
+- Analytical twisting limited to only few models (i.e. Bayesian conjugacy)
 
-- Other types of exact samplers
-    - Use hybrid between rejection and analytical integration for better performance 
+--
+- Extend with rejection sampling, high 'naive' computational cost but memory usage reduced
 
-- Apply rejection-based twisting ideas to new statistical models
+--
+- Partial-rejection options may be available
 
-- Relate average acceptance rate to asymptotic variance to choose target acceptance rate
-    - Identify models method will be appropriate for
-
+--
+- Future: new models, identify characteristics of models that will benefit (computational aspect)
 
 ---
 class: inverse, center, middle, hide-logo
 
-## Thank you for listening!
+## Thank you for listening ... 
+
+--
+
+## at 5PM before a long weekend!
